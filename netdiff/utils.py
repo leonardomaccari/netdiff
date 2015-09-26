@@ -22,14 +22,14 @@ def diff(old, new):
     # or assign None if no changes
     if added_nodes.nodes() and added_edges.edges():
         added = _netjson_networkgraph(protocol, version, revision, metric,
-                                      added_nodes.nodes(),
+                                      added_nodes.nodes(data=True),
                                       added_edges.edges(data=True),
                                       dict=True)
     else:
         added = None
     if removed_nodes.nodes() and removed_edges.edges():
         removed = _netjson_networkgraph(protocol, version, revision, metric,
-                                        removed_nodes.nodes(),
+                                        removed_nodes.nodes(data=True),
                                         removed_edges.edges(data=True),
                                         dict=True)
     else:
@@ -129,7 +129,12 @@ def _netjson_networkgraph(protocol, version, revision, metric,
     if metric is None and protocol != 'static':
         raise NetJsonError('metric cannot be None except when protocol is "static"')
     # prepare lists
-    node_list = [{'id': node} for node in nodes]
+    node_list = []
+    for node in nodes:
+        attrs = {'id': node[0]}
+        for key, val in node[1].items():
+            attrs[key] = val
+        node_list.append(attrs)
     link_list = []
     for link in links:
         link_list.append(OrderedDict((

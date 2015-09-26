@@ -2,6 +2,7 @@ import six
 import json
 import requests
 import telnetlib
+from ..mywhois import whois
 
 try:
     import urlparse
@@ -146,7 +147,11 @@ class BaseParser(object):
                                      self.version,
                                      self.revision,
                                      self.metric,
-                                     graph.nodes(),
+                                     graph.nodes(data=True),
                                      graph.edges(data=True),
                                      dict,
                                      **kwargs)
+
+    def resolveIPs(self):
+        for n in self.graph:
+            self.graph.node[n]["label"] = whois(n)["mapserver"]
